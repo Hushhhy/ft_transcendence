@@ -1,0 +1,5 @@
+# Backend dependencies
+node_modules/
+
+# Lock files (kept ignored in this project)
+yarn.lock

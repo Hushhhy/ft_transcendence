@@ -1,0 +1,75 @@
+generator client {
+	provider = "prisma-client-js"
+}
+
+enum BlackjackRoundCause {
+	bust
+	victory
+	defeat
+	blackjack
+	push
+}
+
+datasource db {
+	provider = "postgresql"
+	url = env("DATABASE_URL")
+}
+
+model User {
+	id							Int			@id @default(autoincrement())
+	email						String		@unique
+	username					String		@unique
+	birthDate					DateTime
+	password					String
+	avatarUrl					String?
+	verified					Boolean		@default(false)
+	emailVerificationToken		String?		@unique
+	emailVerificationExpiry		DateTime?
+	passwordResetToken			String?		@unique
+	passwordResetExpiry			DateTime?
+	balance						Float		@default(0)
+	blackjackGamesPlayed		Int			@default(0)
+	blackjackBestWinningHand		Int?
+	blackjackBestLosingHand		Int?
+	createdAt					DateTime	@default(now())
+	updatedAt					DateTime	@updatedAt
+	transactions				Transaction[] // Reverse relation
+	blackjackRoundHistories		BlackjackRoundHistory[]
+	friendshipsAsRequester		Friendship[] @relation("FriendshipRequester")
+	friendshipsAsAddressee		Friendship[] @relation("FriendshipAddressee")
+}
+
+model Friendship {
+	id				Int			@id @default(autoincrement())
+	requesterId		Int
+	addresseeId		Int
+	status			String		@default("pending") // "pending", "accepted", "blocked"
+	createdAt		DateTime	@default(now())
+	updatedAt		DateTime	@updatedAt
+
+	requester		User		@relation("FriendshipRequester", fields: [requesterId], references: [id])
+	addressee		User		@relation("FriendshipAddressee", fields: [addresseeId], references: [id])
+
+	@@unique([requesterId, addresseeId])
+}
+
+model Transaction {
+	id				Int			@id @default(autoincrement())
+	userId			Int
+	user			User		@relation(fields: [userId], references: [id])
+	amount			Float
+	type			String		// "deposit", "withdraw", "win", "loss"
+	bet				Float
+	game			String		// "blackjack", "roulette", "bus"
+	createdAt		DateTime	@default(now())
+	gameNbr			Int
+}
+
+model BlackjackRoundHistory {
+	id				Int			@id @default(autoincrement())
+	userId			Int
+	user			User		@relation(fields: [userId], references: [id])
+	netAmount		Float
+	cause			BlackjackRoundCause
+	createdAt		DateTime	@default(now())
+}
