@@ -245,4 +245,3 @@ The database is structured around the following main entities:
 * **acarpent:** Developpe Frontend architecture, User experience, coach Frontend.
 * **sdiallo:** Major user management developement.
 * **enschnei:** Translate service, readme writting.
->>>>>>> develop
